@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
 
+const MOVIE_API_KEY = import.meta.env.VITE_MOVIE_API_KEY;
+
 export const useMovieStore = defineStore('movie', () => {
     const movies = ref([]);
     const favorites = ref(JSON.parse(sessionStorage.getItem('favorites')) || []);
@@ -14,10 +16,8 @@ export const useMovieStore = defineStore('movie', () => {
         errorMessage.value = '';
 
         try {
-            const API_KEY = '33e47b614116162f0191294a17b96658';
-
             const movieParams = {
-                api_key: API_KEY,
+                api_key: MOVIE_API_KEY,
                 language: 'ko-KR',
                 region: 'KR',
                 sort_by: 'popularity.desc',
@@ -50,12 +50,11 @@ export const useMovieStore = defineStore('movie', () => {
         selectedMovie.value = null;
 
         try {
-            const API_KEY = '33e47b614116162f0191294a17b96658';
             const url = `https://api.themoviedb.org/3/movie/${movieId}`;
 
             const response = await axios.get(url, {
                 params: {
-                    api_key: API_KEY,
+                    api_key: MOVIE_API_KEY,
                     language: 'ko-KR'
                 }
             });
