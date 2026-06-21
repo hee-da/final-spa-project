@@ -1,9 +1,34 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { RouterLink, RouterView } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useMovieStore } from './stores/movieStore.js';
 
 const store = useMovieStore();
+const router = useRouter();
+const route = useRoute();
+
+const searchKeyword = ref('');
+const showSearchWarning = ref(false);
+
+const handleSearch = () => {
+    if (searchKeyword.value.trim() === '') {
+        showSearchWarning.value = true;
+        return;
+    }
+    showSearchWarning.value = false;
+    router.push({ name: 'search', query: { q: searchKeyword.value } });
+};
+
+watch(searchKeyword, () => {
+    showSearchWarning.value = false;
+});
+
+watch(() => route.path, (newPath) => {
+    if (newPath === '/') {
+        searchKeyword.value = '';
+    }
+});
 
 const totalFavoritesCount = computed(() => {
   return store.favorites.length;
@@ -33,11 +58,24 @@ const averageFavoritesRating = computed(() => {
           <RouterLink to="/" class="nav-item">홈</RouterLink>
           <RouterLink to="/movies" class="nav-item">영화 목록</RouterLink>
         </nav>
+        <div class="search-wrapper">
+            <div class="search-box">
+                <input
+                    v-model="searchKeyword"
+                    @keyup.enter="handleSearch"
+                    type="text"
+                    placeholder="영화 제목 검색"
+                    class="search-input"
+                />
+                <button @click="handleSearch" class="search-btn">🔍</button>
+            </div>
+            <p v-if="showSearchWarning" class="search-warning">검색어를 입력해주세요</p>
+        </div>
         <div class="header-dashboard">
-          <div class="dashboard-badge favorite-count">
+          <RouterLink to="/favorites" class="dashboard-badge favorite-count">
             <span class="badge-label">❤️ 찜한 작품</span>
             <span class="badge-value">{{ totalFavoritesCount }}개</span>
-          </div>
+          </RouterLink>
           <div class="dashboard-badge average-rating">
             <span class="badge-label">⭐ 평균 평점</span>
             <span class="badge-value">{{ averageFavoritesRating }} / 10</span>
@@ -127,6 +165,11 @@ const averageFavoritesRating = computed(() => {
   gap: 8px;
   border: 1px solid #3f4656;
   align-items: center;
+  text-decoration: none;
+  cursor: default;
+}
+.favorite-count {
+  cursor: pointer;
 }
 .badge-label {
   font-size: 13px;
@@ -145,5 +188,72 @@ const averageFavoritesRating = computed(() => {
   flex-grow: 1;
   width: 100%;
   box-sizing: border-box;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #2f3542;
+  border-radius: 20px;
+  border: 1px solid #3f4656;
+  padding: 4px 4px 4px 14px;
+}
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 14px;
+  width: 160px;
+}
+.search-input::placeholder {
+  color: #747d8c;
+}
+.search-btn {
+  background: #ff4757;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+.search-wrapper {
+  position: relative;
+}
+.search-warning {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4757;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+  animation: fadeInDown 0.2s ease;
+}
+.search-warning::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #ff4757;
+}
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -5px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 </style>
