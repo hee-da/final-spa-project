@@ -30,14 +30,14 @@ const router = createRouter({
       component: SearchView,
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFoundView,
-    },
-    {
       path: '/favorites',
       name: 'favorites',
       component: FavoritesView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView,
     },
   ],
 });
